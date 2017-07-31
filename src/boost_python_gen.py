@@ -5,7 +5,7 @@ import sys
 import os
 import clang.cindex
 import itertools
-from mako.template import Template
+from jinja2 import Template
 
 def get_annotations(node):
     return [c.displayname for c in node.get_children()
@@ -52,10 +52,9 @@ index = clang.cindex.Index.create()
 translation_unit = index.parse(sys.argv[1], ['-x', 'c++', '-std=c++11', '-D__CODE_GENERATOR__'])
 
 classes = build_classes(translation_unit.cursor)
-tpl = Template(filename='bind.mako')
+tpl = Template(open('wrapped.jinja', 'rt').read())
 rendered = tpl.render(
              classes=classes,
-             module_name='CodegenExample',
              include_file=sys.argv[1])
 
 OUTPUT_DIR = 'generated'

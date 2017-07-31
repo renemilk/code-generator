@@ -1,0 +1,15 @@
+#include "{{include_file}}"
+
+
+{% for c in classes %}
+    class {{c.name}}Interface {
+    {% for f in c.functions %}
+        {% if not "hidden" in f.annotations %}
+        // {{f.name}} {{c.name}}
+        {% endif %}
+    {% endfor %}
+    };
+{% endfor %}
+
+
+
