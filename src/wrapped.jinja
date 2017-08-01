@@ -1,6 +1,5 @@
 #include "{{include_file}}"
 
-
 {% for c in classes %}
     class {{c.name}}Interface {
     {% for f in c.functions %}
@@ -9,6 +8,7 @@
               {%- endfor -%}) {{ "const" if f.const }}
         {
             WRAPPEDTYPE->{{f.name}}({% for param in f.parameters -%} {{ param.displayname }}{{ "," if not loop.last }} {%- endfor -%});
+            {{ f.text }};
         }
     {% endfor %}
     };

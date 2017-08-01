@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # vim: set fileencoding=utf-8
-
+import pprint
 import sys
 import os
 import clang.cindex
@@ -9,34 +9,41 @@ from clang.cindex import StorageClass
 import itertools
 from jinja2 import Template
 
-
-def get_annotations(node):
-    return [c.displayname for c in node.get_children()
-            if c.kind == clang.cindex.CursorKind.ANNOTATE_ATTR]
-
-
 class Function(object):
     def __init__(self, cursor):
         self.name = cursor.spelling
-        self.annotations = get_annotations(cursor)
         self.access = cursor.access_specifier
         self.parameters = list(cursor.get_arguments())
         self.return_type = cursor.result_type.spelling
         self.storage = '' if cursor.storage_class == StorageClass.NONE else cursor.storage_class.name.lower()
         self.const = cursor.is_const_method()
+        self.text = ' '.join([t.spelling for t in cursor.translation_unit.get_tokens(extent=cursor.extent)])
+
+
+class FunctionTemplate(object):
+    def __init__(self, cursor):
+        self.name = cursor.spelling
+        self.access = cursor.access_specifier
+        self.parameters = [cursor.get_template_argument_type(i) for i in range(cursor.get_num_template_arguments())] + list(cursor.get_arguments())
+        self.return_type = cursor.result_type.spelling
+        # storage class is always invalid for me for tpl functions
+        self.storage = 'static' if cursor.is_static_method() else ''
+        self.const = cursor.is_const_method()
+        self.text = ' '.join([t.spelling for t  in cursor.translation_unit.get_tokens(extent=cursor.extent)])
 
 
 class Class(object):
     def __init__(self, cursor):
         self.name = cursor.spelling
         self.functions = []
-        self.annotations = get_annotations(cursor)
 
         for c in cursor.get_children():
-            if (c.kind == clang.cindex.CursorKind.CXX_METHOD and
-                        c.access_specifier == clang.cindex.AccessSpecifier.PUBLIC):
-                f = Function(c)
-                self.functions.append(f)
+            if c.access_specifier != clang.cindex.AccessSpecifier.PUBLIC:
+                continue
+            if (c.kind == clang.cindex.CursorKind.CXX_METHOD):
+                self.functions.append(Function(c))
+            if (c.kind == clang.cindex.CursorKind.FUNCTION_TEMPLATE):
+                self.functions.append(FunctionTemplate(c))
 
 
 def build_classes(cursor):

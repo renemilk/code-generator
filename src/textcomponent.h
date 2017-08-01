@@ -1,6 +1,7 @@
 #pragma once 
 
 #include <string>
+#include <array>
 
 #ifdef __CODE_GENERATOR__
 #define HIDDEN __attribute__((annotate("hidden")))
@@ -12,14 +13,21 @@ class TextComponent
 {
 public:
     TextComponent();
+//
+//    std::string text() const;
+//    double** doublepointer() const;
+//    void setText(const std::string& value);
+//
+//    HIDDEN void superSecretFunction();
+//
+//    static int myStatic();
 
-    std::string text() const;
-    double** doublepointer() const;
-    void setText(const std::string& value);
+    template <typename T, int size>
+    std::array<T,size> tplFunc(int loc, T ui);
 
-    HIDDEN void superSecretFunction();
-
-    static int myStatic();
+    template <typename T, int size>
+    std::array<T,size> definedFunc(int loc, T ui) {
+    }
 
 private:
 
