@@ -14,10 +14,15 @@ public:
     TextComponent();
 
     std::string text() const;
+    double** doublepointer() const;
     void setText(const std::string& value);
 
     HIDDEN void superSecretFunction();
 
+    static int myStatic();
+
 private:
+
+    void privFunction();
     std::string m_text;
 };

@@ -4,9 +4,12 @@
 {% for c in classes %}
     class {{c.name}}Interface {
     {% for f in c.functions %}
-        {% if not "hidden" in f.annotations %}
-        // {{f.name}} {{c.name}}
-        {% endif %}
+        {{f.storage}} {{f.return_type}} {{f.name}} ({% for param in f.parameters -%}
+                {{ param.type.spelling }} {{ param.displayname }}{{ "," if not loop.last }}
+              {%- endfor -%}) {{ "const" if f.const }}
+        {
+            WRAPPEDTYPE->{{f.name}}({% for param in f.parameters -%} {{ param.displayname }}{{ "," if not loop.last }} {%- endfor -%});
+        }
     {% endfor %}
     };
 {% endfor %}

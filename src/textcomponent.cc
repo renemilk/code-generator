@@ -22,3 +22,6 @@ void TextComponent::superSecretFunction()
     std::cout << "HOW DID YOU FIND ME" << std::endl;
 }
 
+void TextComponent::privFunction()
+{
+}

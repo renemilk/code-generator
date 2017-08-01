@@ -3,9 +3,6 @@
 
 #include "textcomponent.h"
 
-namespace py = boost::python;
-
-
 int main()
 {
 
