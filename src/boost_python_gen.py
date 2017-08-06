@@ -9,41 +9,14 @@ from clang.cindex import StorageClass
 import itertools
 from jinja2 import Template
 
+
 class Function(object):
-    def __init__(self, cursor):
-        self.name = cursor.spelling
-        self.access = cursor.access_specifier
-        self.parameters = list(cursor.get_arguments())
-        self.return_type = cursor.result_type.spelling
-        self.storage = '' if cursor.storage_class == StorageClass.NONE else cursor.storage_class.name.lower()
-        self.const = cursor.is_const_method()
-        self.declaration = ''
-        for token in cursor.translation_unit.get_tokens(extent=cursor.extent):
-            if '{' in token.spelling:
-                break
-            self.declaration += ' '+token.spelling
-
-
-class FunctionTemplate(object):
     def __init__(self, cursor):
         self.name = cursor.spelling
         self.access = cursor.access_specifier
         self.parameters = [cursor.get_template_argument_type(i) for i in range(cursor.get_num_template_arguments())] + list(cursor.get_arguments())
         parameter_dec = [c for c in cursor.get_children() if c.kind == clang.cindex.CursorKind.PARM_DECL]
-
-        print('*'*50)
-        parameters = []
-        for p in parameter_dec:
-            for token in cursor.translation_unit.get_tokens(extent=p.extent):
-                print(token, token.kind)
-            text = p.spelling or p.displayname
-            parameters.append(text)
-        print('*' * 50)
-        self.parameters = parameters
-        self.return_type = cursor.result_type.spelling
-        # storage class is always invalid for me for tpl functions
-        self.storage = 'static' if cursor.is_static_method() else ''
-        self.const = cursor.is_const_method()
+        self.parameters = [p.spelling or p.displayname for p in parameter_dec]
         self.declaration = ''
         for token in cursor.translation_unit.get_tokens(extent=cursor.extent):
             if '{' in token.spelling:
@@ -59,10 +32,9 @@ class Class(object):
         for c in cursor.get_children():
             if c.access_specifier != clang.cindex.AccessSpecifier.PUBLIC:
                 continue
-            if (c.kind == clang.cindex.CursorKind.CXX_METHOD):
+            if (c.kind == clang.cindex.CursorKind.CXX_METHOD) or \
+                    (c.kind == clang.cindex.CursorKind.FUNCTION_TEMPLATE):
                 self.functions.append(Function(c))
-            if (c.kind == clang.cindex.CursorKind.FUNCTION_TEMPLATE):
-                self.functions.append(FunctionTemplate(c))
 
 
 def build_classes(cursor):
