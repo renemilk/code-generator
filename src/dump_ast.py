@@ -16,7 +16,7 @@ if len(sys.argv) != 2:
     print("Usage: dump_ast.py [header file name]")
     sys.exit()
 
-clang.cindex.Config.set_library_file('/usr/local/lib/libclang.so')
+clang.cindex.Config.set_library_file('/usr/lib/x86_64-linux-gnu/libclang-4.0.so.1')
 index = clang.cindex.Index.create()
 translation_unit = index.parse(sys.argv[1], ['-x', 'c++', '-std=c++11', '-D__CODE_GENERATOR__'])
 

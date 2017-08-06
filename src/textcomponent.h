@@ -13,14 +13,14 @@ class TextComponent
 {
 public:
     TextComponent();
-//
+
 //    std::string text() const;
 //    double** doublepointer() const;
-//    void setText(const std::string& value);
+    void setText(const std::string& value);
 //
 //    HIDDEN void superSecretFunction();
 //
-//    static int myStatic();
+    static int myStatic();
 
     template <typename T, int size>
     std::array<T,size> tplFunc(int loc, T ui);

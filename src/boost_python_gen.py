@@ -17,7 +17,11 @@ class Function(object):
         self.return_type = cursor.result_type.spelling
         self.storage = '' if cursor.storage_class == StorageClass.NONE else cursor.storage_class.name.lower()
         self.const = cursor.is_const_method()
-        self.text = ' '.join([t.spelling for t in cursor.translation_unit.get_tokens(extent=cursor.extent)])
+        self.declaration = ''
+        for token in cursor.translation_unit.get_tokens(extent=cursor.extent):
+            if '{' in token.spelling:
+                break
+            self.declaration += ' '+token.spelling
 
 
 class FunctionTemplate(object):
@@ -25,11 +29,26 @@ class FunctionTemplate(object):
         self.name = cursor.spelling
         self.access = cursor.access_specifier
         self.parameters = [cursor.get_template_argument_type(i) for i in range(cursor.get_num_template_arguments())] + list(cursor.get_arguments())
+        parameter_dec = [c for c in cursor.get_children() if c.kind == clang.cindex.CursorKind.PARM_DECL]
+
+        print('*'*50)
+        parameters = []
+        for p in parameter_dec:
+            for token in cursor.translation_unit.get_tokens(extent=p.extent):
+                print(token, token.kind)
+            text = p.spelling or p.displayname
+            parameters.append(text)
+        print('*' * 50)
+        self.parameters = parameters
         self.return_type = cursor.result_type.spelling
         # storage class is always invalid for me for tpl functions
         self.storage = 'static' if cursor.is_static_method() else ''
         self.const = cursor.is_const_method()
-        self.text = ' '.join([t.spelling for t  in cursor.translation_unit.get_tokens(extent=cursor.extent)])
+        self.declaration = ''
+        for token in cursor.translation_unit.get_tokens(extent=cursor.extent):
+            if '{' in token.spelling:
+                break
+            self.declaration += ' '+token.spelling
 
 
 class Class(object):

@@ -3,12 +3,10 @@
 {% for c in classes %}
     class {{c.name}}Interface {
     {% for f in c.functions %}
-        {{f.storage}} {{f.return_type}} {{f.name}} ({% for param in f.parameters -%}
-                {{ param.type.spelling }} {{ param.displayname }}{{ "," if not loop.last }}
-              {%- endfor -%}) {{ "const" if f.const }}
+        {{ f.declaration }}
         {
-            WRAPPEDTYPE->{{f.name}}({% for param in f.parameters -%} {{ param.displayname }}{{ "," if not loop.last }} {%- endfor -%});
-            {{ f.text }};
+            WRAPPEDTYPE->{{f.name}}({% for param in f.parameters -%} {{ param }}{{ "," if not loop.last }} {%- endfor -%});
+
         }
     {% endfor %}
     };
